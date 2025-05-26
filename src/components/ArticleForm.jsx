@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import "./ArticleForm.css";
@@ -6,35 +6,49 @@ import { useCreateArticleMutation, useUpdateArticleMutation } from "../features/
 
 const ArticleForm = ({ article, onArticleUpdate }) => {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors }, setError } = useForm({
+  const { register, handleSubmit, formState: { errors }, setError, reset } = useForm({
     defaultValues: {
       title: article?.title || "",
       description: article?.description || "",
-      body: article?.body || "",
-      tagList: article?.tagList?.join(" ") || ""
+      body: article?.body || ""
     }
   });
+
+  // Теги как массив
+  const [tags, setTags] = useState(article?.tagList?.length ? article.tagList : [""]);
 
   const [createArticle] = useCreateArticleMutation();
   const [updateArticle] = useUpdateArticleMutation();
 
+  const handleTagChange = (i, value) => {
+    const newTags = [...tags];
+    newTags[i] = value;
+    setTags(newTags);
+  };
+
+  const handleAddTag = () => setTags([...tags, ""]);
+
+  const handleDeleteTag = (i) => setTags(tags.filter((_, idx) => idx !== i));
+
   const onSubmit = async (data) => {
     try {
+      const tagList = tags.map(t => t.trim()).filter(Boolean);
       const articleData = {
         article: {
           ...data,
-          tagList: data.tagList.split(" ").filter(tag => tag.trim())
+          tagList
         }
       };
-
       let result;
       if (article) {
         result = await updateArticle({ slug: article.slug, ...articleData }).unwrap();
-        onArticleUpdate(result.article);
+        if (onArticleUpdate) onArticleUpdate(result.article);
       } else {
         result = await createArticle(articleData).unwrap();
         navigate(`/article/${result.article.slug}`);
       }
+      reset();
+      setTags([""]);
     } catch (err) {
       if (err.data?.errors) {
         Object.entries(err.data.errors).forEach(([field, messages]) => {
@@ -79,12 +93,27 @@ const ArticleForm = ({ article, onArticleUpdate }) => {
         </div>
         <div>
           <label className="form-label">Tags</label>
-          <input
-            className="form-input"
-            placeholder="Tags"
-            {...register("tagList")}
-          />
-          {errors.tagList && <div className="error-message">{errors.tagList.message}</div>}
+          {tags.map((tag, i) => (
+            <div className="tag-container" key={i}>
+              <input
+                className="form-input tag-input"
+                value={tag}
+                placeholder="Tag"
+                onChange={e => handleTagChange(i, e.target.value)}
+              />
+              <button
+                type="button"
+                className="tag-delete-button"
+                onClick={() => handleDeleteTag(i)}
+                disabled={tags.length === 1}
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+          <button type="button" className="tag-button" onClick={handleAddTag}>
+            Add tag
+          </button>
         </div>
         <button type="submit" className="form-button">
           {article ? "Save" : "Send"}

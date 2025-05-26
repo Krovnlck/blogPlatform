@@ -5,9 +5,17 @@ const API_URL = 'https://blog-platform.kata.academy/api';
 export const articlesApi = createApi({
   reducerPath: 'articlesApi',
   baseQuery: fetchBaseQuery({ baseUrl: API_URL }),
+  tagTypes: ['Articles'],
   endpoints: (builder) => ({
     getArticles: builder.query({
-      query: ({ limit = 5, offset = 0 } = {}) => `/articles?limit=${limit}&offset=${offset}`
+      query: ({ limit = 5, offset = 0 } = {}) => `/articles?limit=${limit}&offset=${offset}`,
+      providesTags: (result) =>
+        result && result.articles
+          ? [
+              ...result.articles.map(({ slug }) => ({ type: 'Articles', id: slug })),
+              { type: 'Articles', id: 'LIST' },
+            ]
+          : [{ type: 'Articles', id: 'LIST' }],
     }),
     getArticle: builder.query({
       query: (slug) => `/articles/${slug}`
@@ -42,14 +50,18 @@ export const articlesApi = createApi({
           method: 'DELETE',
           headers: { Authorization: `Token ${token}` }
         };
-      }
+      },
+      invalidatesTags: (result, error, slug) => [
+        { type: 'Articles', id: slug },
+        { type: 'Articles', id: 'LIST' },
+      ],
     }),
     favoriteArticle: builder.mutation({
       query: (slug) => {
         const token = localStorage.getItem('token');
         return {
           url: `/articles/${slug}/favorite`,
-    method: 'POST',
+          method: 'POST',
           headers: { Authorization: `Token ${token}` }
         };
       }
