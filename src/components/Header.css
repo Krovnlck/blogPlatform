@@ -1,0 +1,93 @@
+.blog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 20px 32px;
+  border-radius: 6px;
+  margin: 24px 0 40px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.blog-title {
+  font-size: 20px;
+  font-weight: 500;
+  cursor: default;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.create-article {
+  background: #fff;
+  border: 1.5px solid #21c87a;
+  color: #21c87a;
+  font-size: 15px;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.create-article:hover {
+  background: #21c87a;
+  color: #fff;
+}
+
+.user-name {
+  font-size: 16px;
+  color: #222;
+  margin: 0 8px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #eee;
+  margin: 0 8px;
+}
+
+.logout-btn {
+  background: #fff;
+  border: 1.5px solid #888;
+  color: #222;
+  font-size: 15px;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.logout-btn:hover {
+  background: #eee;
+}
+
+.sign-in {
+  background: none;
+  border: none;
+  color: #222;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 8px 16px;
+}
+
+.sign-up {
+  background: #fff;
+  border: 1.5px solid #21c87a;
+  color: #21c87a;
+  font-size: 16px;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.sign-up:hover {
+  background: #21c87a;
+  color: #fff;
+} 
