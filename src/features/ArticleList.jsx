@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../components/ArticleList.css";
-import { fetchArticles, likeArticle, unlikeArticle } from "./articlesApi";
+import { useGetArticlesQuery, useFavoriteArticleMutation } from "./articlesApi";
 import { useNavigate } from "react-router-dom";
 
 const PAGE_SIZE = 5;
