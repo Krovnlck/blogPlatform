@@ -23,12 +23,31 @@ const SignUpForm = ({ onRegister }) => {
     }
     setLoading(true);
     try {
-      const { data } = await registerUser({ username: form.username, email: form.email, password: form.password }).unwrap();
-      localStorage.setItem("token", data.user.token);
-      if (onRegister) onRegister(data.user);
-      navigate("/");
+      const result = await registerUser({ username: form.username, email: form.email, password: form.password }).unwrap();
+      const user = result?.user;
+      if (user) {
+        localStorage.setItem("token", user.token);
+        if (onRegister) onRegister(user);
+        navigate("/");
+        return;
+      }
+      setError('Failed to register');
     } catch (err) {
-      setError(err.data?.errors?.message || 'Failed to register');
+      if (err.data?.user) {
+        localStorage.setItem("token", err.data.user.token);
+        if (onRegister) onRegister(err.data.user);
+        navigate("/");
+        return;
+      }
+      if (err.data?.errors) {
+        setError(
+          Object.entries(err.data.errors)
+            .map(([field, msg]) => `${field}: ${msg}`)
+            .join(' ')
+        );
+      } else {
+        setError('Failed to register');
+      }
     } finally {
       setLoading(false);
     }

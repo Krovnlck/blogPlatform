@@ -89,6 +89,15 @@
 }
 
 .form-textarea {
-  min-height: 120px;
+  width: 100%;
+  min-height: 200px;
   resize: vertical;
+  padding: 10px;
+  margin: 8px 0 16px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  box-sizing: border-box;
+  background: #f7f7f7;
+  color: #222;
 } 

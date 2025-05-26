@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from "react";
 import "../components/ArticleList.css";
-import { useGetArticlesQuery, useFavoriteArticleMutation } from "./articlesApi";
+import { useGetArticlesQuery, useFavoriteArticleMutation, useUnfavoriteArticleMutation } from "./articlesApi";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useSelector } from 'react-redux';
 
 const PAGE_SIZE = 5;
 
@@ -13,25 +15,40 @@ const ArticleList = ({ isAuth }) => {
     [page]
   );
   const { data, isLoading, error } = useGetArticlesQuery(queryParams);
-  console.log("data", data, "error", error);
   const [favoriteArticle] = useFavoriteArticleMutation();
+  const [unfavoriteArticle] = useUnfavoriteArticleMutation();
+  // Оставляем оба варианта для совместимости
+  const isAuthenticated = useSelector(state => state?.auth?.isAuthenticated ?? false);
 
   const articles = data?.articles || [];
   const total = data?.articlesCount || 0;
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const handleLike = async (slug, favorited) => {
-    if (!isAuth || favorited) return;
     try {
-      await favoriteArticle(slug).unwrap();
-    } catch (e) {
-      // Можно добавить обработку ошибки
+      if (!(isAuth ?? isAuthenticated)) {
+        return;
+      }
+      if (favorited) {
+        await unfavoriteArticle(slug).unwrap();
+      } else {
+        await favoriteArticle(slug).unwrap();
+      }
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
     }
   };
 
+  if (isLoading) {
+    return <div className="loading">Loading articles...</div>;
+  }
+
+  if (!articles.length) {
+    return <div className="no-articles">No articles found</div>;
+  }
+
   return (
     <>
-      {isLoading && <div className="loading">Загрузка...</div>}
       {error && <div className="error">{error.message || "Ошибка загрузки"}</div>}
       <div className="articles">
         {articles.map((article) => (
@@ -51,9 +68,9 @@ const ArticleList = ({ isAuth }) => {
                 <span className="likes">
                   <span
                     className="like-icon"
-                    style={{ color: article.favorited ? '#ff4d4f' : '#888', cursor: isAuth ? 'pointer' : 'not-allowed' }}
-                    onClick={() => handleLike(article.slug, article.favorited)}
-                    title={isAuth ? (article.favorited ? 'Уже лайкнуто' : 'Поставить лайк') : 'Войдите, чтобы лайкать'}
+                    style={{ color: article.favorited ? '#ff4d4f' : '#888', cursor: (isAuth ?? isAuthenticated) ? 'pointer' : 'not-allowed' }}
+                    onClick={() => (isAuth ?? isAuthenticated) && handleLike(article.slug, article.favorited)}
+                    title={(isAuth ?? isAuthenticated) ? (article.favorited ? 'Убрать лайк' : 'Поставить лайк') : 'Войдите, чтобы лайкать'}
                   >
                     {article.favorited ? '❤️' : '♡'}
                   </span>
@@ -71,7 +88,7 @@ const ArticleList = ({ isAuth }) => {
                   <span className="author-name">{article.author.username}</span>
                   <span className="date">{new Date(article.createdAt).toLocaleDateString()}</span>
                 </div>
-                <img className="avatar" src={article.author.image} alt="avatar" />
+                <img className="avatar" src={article.author.image || 'https://api.realworld.io/images/smiley-cyrus.jpeg'} alt="avatar" />
               </div>
             </div>
           </div>
@@ -79,15 +96,22 @@ const ArticleList = ({ isAuth }) => {
       </div>
       <footer className="pagination">
         <button className="page-btn" disabled={page === 1} onClick={() => setPage(page - 1)}>{'<'}</button>
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            className={`page-btn${page === i + 1 ? ' active' : ''}`}
-            key={i + 1}
-            onClick={() => setPage(i + 1)}
-          >
-            {i + 1}
-          </button>
-        ))}
+        {Array.from({ length: totalPages }, (_, i) => i + 1)
+          .filter(p => {
+            if (totalPages <= 5) return true;
+            if (page <= 3) return p <= 5;
+            if (page >= totalPages - 2) return p > totalPages - 5;
+            return Math.abs(page - p) <= 2;
+          })
+          .map(p => (
+            <button
+              className={`page-btn${page === p ? ' active' : ''}`}
+              key={p}
+              onClick={() => setPage(p)}
+            >
+              {p}
+            </button>
+          ))}
         <button className="page-btn" disabled={page === totalPages} onClick={() => setPage(page + 1)}>{'>'}</button>
       </footer>
     </>

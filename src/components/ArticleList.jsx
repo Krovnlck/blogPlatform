@@ -1,30 +1,45 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./ArticleList.css";
-import { useGetArticlesQuery } from "../features/articlesApi";
+import { useGetArticlesQuery, useFavoriteArticleMutation, useUnfavoriteArticleMutation } from "../features/articlesApi";
+import { useSelector } from 'react-redux';
 
 const ArticleList = () => {
-  const { data: articles, error, isLoading } = useGetArticlesQuery();
+  const { data: articlesData, isLoading } = useGetArticlesQuery();
+  const [favoriteArticle] = useFavoriteArticleMutation();
+  const [unfavoriteArticle] = useUnfavoriteArticleMutation();
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+
+  const handleFavorite = async (slug, favorited) => {
+    try {
+      if (!isAuthenticated) {
+        return;
+      }
+      if (favorited) {
+        await unfavoriteArticle(slug).unwrap();
+      } else {
+        await favoriteArticle(slug).unwrap();
+      }
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+    }
+  };
 
   if (isLoading) {
     return <div className="loading">Loading articles...</div>;
   }
 
-  if (error) {
-    return <div className="error-message">Error loading articles: {error.message}</div>;
-  }
-
-  if (!articles?.articles?.length) {
+  if (!articlesData?.articles?.length) {
     return <div className="no-articles">No articles found</div>;
   }
 
   return (
     <div className="article-list">
-      {articles.articles.map((article) => (
+      {articlesData.articles.map((article) => (
         <article key={article.slug} className="article-preview">
           <div className="article-meta">
             <Link to={`/profile/${article.author.username}`}>
-              <img src={article.author.image} alt={article.author.username} />
+              <img src={article.author.image || 'https://api.realworld.io/images/smiley-cyrus.jpeg'} alt={article.author.username} />
             </Link>
             <div className="info">
               <Link to={`/profile/${article.author.username}`} className="author">
@@ -32,7 +47,11 @@ const ArticleList = () => {
               </Link>
               <span className="date">{new Date(article.createdAt).toLocaleDateString()}</span>
             </div>
-            <button className="btn btn-sm pull-xs-right">
+            <button
+              className={`btn btn-sm pull-xs-right ${article.favorited ? 'btn-primary' : 'btn-outline-primary'}`}
+              onClick={() => handleFavorite(article.slug, article.favorited)}
+              disabled={!isAuthenticated}
+            >
               <i className="ion-heart"></i> {article.favoritesCount}
             </button>
           </div>

@@ -4,7 +4,17 @@ const API_URL = 'https://blog-platform.kata.academy/api';
 
 export const articlesApi = createApi({
   reducerPath: 'articlesApi',
-  baseQuery: fetchBaseQuery({ baseUrl: API_URL }),
+  baseQuery: fetchBaseQuery({ 
+    baseUrl: API_URL,
+    prepareHeaders: (headers, { getState }) => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        headers.set('authorization', `Token ${token}`);
+      }
+      headers.set('Content-Type', 'application/json');
+      return headers;
+    },
+  }),
   tagTypes: ['Articles'],
   endpoints: (builder) => ({
     getArticles: builder.query({
@@ -16,55 +26,68 @@ export const articlesApi = createApi({
               { type: 'Articles', id: 'LIST' },
             ]
           : [{ type: 'Articles', id: 'LIST' }],
+      serializeQueryArgs: ({ queryArgs }) => {
+        return queryArgs;
+      },
+      merge: (currentCache, newItems) => {
+        return newItems;
+      },
+      forceRefetch: ({ currentArg, previousArg }) => {
+        return currentArg !== previousArg;
+      }
     }),
     getArticle: builder.query({
-      query: (slug) => `/articles/${slug}`
+      query: (slug) => `/articles/${slug}`,
+      providesTags: (result, error, slug) => [{ type: 'Articles', id: slug }],
     }),
     createArticle: builder.mutation({
-      query: (articleData) => {
-        const token = localStorage.getItem('token');
-        return {
-          url: '/articles',
-          method: 'POST',
-          headers: { Authorization: `Token ${token}` },
-          body: articleData
-        };
-      }
+      query: (articleData) => ({
+        url: '/articles',
+        method: 'POST',
+        body: articleData
+      }),
+      invalidatesTags: [{ type: 'Articles', id: 'LIST' }],
     }),
     updateArticle: builder.mutation({
-      query: ({ slug, ...articleData }) => {
-        const token = localStorage.getItem('token');
-        return {
-          url: `/articles/${slug}`,
-          method: 'PUT',
-          headers: { Authorization: `Token ${token}` },
-          body: articleData
-        };
-      }
+      query: ({ slug, ...articleData }) => ({
+        url: `/articles/${slug}`,
+        method: 'PUT',
+        body: articleData
+      }),
+      invalidatesTags: (result, error, { slug }) => [
+        { type: 'Articles', id: slug },
+        { type: 'Articles', id: 'LIST' }
+      ],
     }),
     deleteArticle: builder.mutation({
-      query: (slug) => {
-        const token = localStorage.getItem('token');
-        return {
-          url: `/articles/${slug}`,
-          method: 'DELETE',
-          headers: { Authorization: `Token ${token}` }
-        };
-      },
+      query: (slug) => ({
+        url: `/articles/${slug}`,
+        method: 'DELETE'
+      }),
       invalidatesTags: (result, error, slug) => [
         { type: 'Articles', id: slug },
-        { type: 'Articles', id: 'LIST' },
+        { type: 'Articles', id: 'LIST' }
       ],
     }),
     favoriteArticle: builder.mutation({
-      query: (slug) => {
-        const token = localStorage.getItem('token');
-        return {
-          url: `/articles/${slug}/favorite`,
-          method: 'POST',
-          headers: { Authorization: `Token ${token}` }
-        };
-      }
+      query: (slug) => ({
+        url: `/articles/${slug}/favorite`,
+        method: 'POST'
+      }),
+      invalidatesTags: (result, error, slug) => [
+        { type: 'Articles', id: slug },
+        { type: 'Articles', id: 'LIST' }
+      ],
+    }),
+    unfavoriteArticle: builder.mutation({
+      query: (slug) => ({
+        url: `/articles/${slug}/favorite`,
+        method: 'DELETE'
+      }),
+      invalidatesTags: (result, error, slug) => [
+        { type: 'Articles', id: slug },
+        { type: 'Articles', id: 'LIST' }
+      ],
     })
   })
 });
@@ -75,5 +98,6 @@ export const {
   useCreateArticleMutation,
   useUpdateArticleMutation,
   useDeleteArticleMutation,
-  useFavoriteArticleMutation
+  useFavoriteArticleMutation,
+  useUnfavoriteArticleMutation
 } = articlesApi; 
