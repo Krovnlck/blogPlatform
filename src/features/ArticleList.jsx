@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../components/ArticleList.css";
 import { fetchArticles, likeArticle, unlikeArticle } from "./articlesApi";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const PAGE_SIZE = 5;
 
@@ -11,7 +11,7 @@ const ArticleList = ({ isAuth }) => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
@@ -63,7 +63,7 @@ const ArticleList = ({ isAuth }) => {
                   className="article-title"
                   onClick={e => {
                     e.preventDefault();
-                    history.push(`/articles/${article.slug}`);
+                    navigate(`/articles/${article.slug}`);
                   }}
                 >
                   {article.title}

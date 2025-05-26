@@ -1,11 +1,11 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./ArticleForm.css";
 import { useCreateArticleMutation, useUpdateArticleMutation } from "../features/articlesApi";
 
 const ArticleForm = ({ article, onArticleUpdate }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors }, setError } = useForm({
     defaultValues: {
       title: article?.title || "",
@@ -33,7 +33,7 @@ const ArticleForm = ({ article, onArticleUpdate }) => {
         onArticleUpdate(result.article);
       } else {
         result = await createArticle(articleData).unwrap();
-        history.push(`/article/${result.article.slug}`);
+        navigate(`/article/${result.article.slug}`);
       }
     } catch (err) {
       if (err.data?.errors) {

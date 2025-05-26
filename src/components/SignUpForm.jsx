@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./SignUpForm.css";
 import { useRegisterUserMutation } from "../features/authApi";
 
@@ -7,7 +7,7 @@ const SignUpForm = ({ onRegister }) => {
   const [form, setForm] = useState({ username: "", email: "", password: "", repeat: "" });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
   const [registerUser] = useRegisterUserMutation();
 
   const handleChange = e => {
@@ -26,7 +26,7 @@ const SignUpForm = ({ onRegister }) => {
       const { data } = await registerUser({ username: form.username, email: form.email, password: form.password }).unwrap();
       localStorage.setItem("token", data.user.token);
       if (onRegister) onRegister(data.user);
-      history.push("/");
+      navigate("/");
     } catch (err) {
       setError(err.data?.errors?.message || 'Failed to register');
     } finally {
@@ -65,7 +65,7 @@ const SignUpForm = ({ onRegister }) => {
           {error && <div className="error-message">{error}</div>}
           <div className="signin-link">
             Already have an account?{' '}
-            <span className="signin-link-text" onClick={() => history.push('/sign-in')}>
+            <span className="signin-link-text" onClick={() => navigate('/sign-in')}>
               Sign In.
             </span>
           </div>

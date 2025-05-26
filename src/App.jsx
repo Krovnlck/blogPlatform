@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import SignInForm from './components/SignInForm';
 import SignUpForm from './components/SignUpForm';
-// import ArticleList from './components/ArticleList';
 import ReactMarkdown from 'react-markdown';
 import Header from './components/Header';
 import ProfilePage from './components/ProfilePage';
@@ -45,20 +44,24 @@ function App() {
   return (
     <Router>
       <Header isAuth={isAuth} user={user} onLogout={handleLogout} />
-      <Switch>
-        <Route path="/sign-in" render={() => <SignInForm onLogin={handleLogin} />} />
-        <Route path="/sign-up" render={() => <SignUpForm onRegister={handleLogin} />} />
-        <PrivateRoute path="/new-article" isAuth={isAuth}>
-          <NewArticlePage user={user} />
-        </PrivateRoute>
-        <PrivateRoute path="/articles/:slug/edit" isAuth={isAuth}>
-          <EditArticlePage user={user} />
-        </PrivateRoute>
-        <Route path="/articles/:slug" render={() => <ArticlePage user={user} isAuth={isAuth} />} />
-        <Route path="/profile" render={() => <ProfilePage user={user} onUserUpdate={setUser} />} />
-        <Route path="/" render={() => <HomePage user={user} isAuth={isAuth} />} exact />
-        <Redirect to="/" />
-      </Switch>
+      <Routes>
+        <Route path="/sign-in" element={<SignInForm onLogin={handleLogin} />} />
+        <Route path="/sign-up" element={<SignUpForm onRegister={handleLogin} />} />
+        <Route path="/new-article" element={
+          <PrivateRoute isAuth={isAuth}>
+            <NewArticlePage user={user} />
+          </PrivateRoute>
+        } />
+        <Route path="/articles/:slug/edit" element={
+          <PrivateRoute isAuth={isAuth}>
+            <EditArticlePage user={user} />
+          </PrivateRoute>
+        } />
+        <Route path="/articles/:slug" element={<ArticlePage user={user} isAuth={isAuth} />} />
+        <Route path="/profile" element={<ProfilePage user={user} onUserUpdate={setUser} />} />
+        <Route path="/" element={<HomePage user={user} isAuth={isAuth} />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </Router>
   );
 }

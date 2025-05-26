@@ -1,17 +1,16 @@
 import React from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import "./ArticlePage.css";
-import { useGetArticleQuery, useDeleteArticleMutation, useFavoriteArticleMutation, useUnfavoriteArticleMutation } from "../features/articlesApi";
+import { useGetArticleQuery, useDeleteArticleMutation, useFavoriteArticleMutation } from "../features/articlesApi";
 
 const ArticlePage = () => {
   const { slug } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const { data: article, error: loadError, isLoading } = useGetArticleQuery(slug);
   const [deleteArticle] = useDeleteArticleMutation();
   const [favoriteArticle] = useFavoriteArticleMutation();
-  const [unfavoriteArticle] = useUnfavoriteArticleMutation();
 
   if (isLoading) {
     return <div className="loading">Loading article...</div>;
@@ -28,7 +27,7 @@ const ArticlePage = () => {
   const handleDelete = async () => {
     try {
       await deleteArticle(slug).unwrap();
-      history.push("/");
+      navigate("/");
     } catch (err) {
       alert("Error deleting article: " + err.message);
     }
@@ -36,9 +35,7 @@ const ArticlePage = () => {
 
   const handleFavorite = async () => {
     try {
-      if (article.favorited) {
-        await unfavoriteArticle(slug).unwrap();
-      } else {
+      if (!article.favorited) {
         await favoriteArticle(slug).unwrap();
       }
     } catch (err) {
@@ -66,16 +63,18 @@ const ArticlePage = () => {
                 <button
                   className={`btn btn-sm ${article.favorited ? "btn-primary" : "btn-outline-primary"}`}
                   onClick={handleFavorite}
+                  disabled={article.favorited}
+                  title={article.favorited ? "Уже лайкнуто" : "Поставить лайк"}
                 >
                   <i className="ion-heart"></i>
-                  &nbsp; {article.favorited ? "Unfavorite" : "Favorite"} Article
+                  &nbsp; Favorite Article
                   <span className="counter">({article.favoritesCount})</span>
                 </button>
                 {user.username === article.author.username && (
                   <>
                     <button
                       className="btn btn-sm btn-outline-secondary"
-                      onClick={() => history.push(`/editor/${article.slug}`)}
+                      onClick={() => navigate(`/editor/${article.slug}`)}
                     >
                       <i className="ion-edit"></i> Edit Article
                     </button>
@@ -122,16 +121,18 @@ const ArticlePage = () => {
                 <button
                   className={`btn btn-sm ${article.favorited ? "btn-primary" : "btn-outline-primary"}`}
                   onClick={handleFavorite}
+                  disabled={article.favorited}
+                  title={article.favorited ? "Уже лайкнуто" : "Поставить лайк"}
                 >
                   <i className="ion-heart"></i>
-                  &nbsp; {article.favorited ? "Unfavorite" : "Favorite"} Article
+                  &nbsp; Favorite Article
                   <span className="counter">({article.favoritesCount})</span>
                 </button>
                 {user.username === article.author.username && (
                   <>
                     <button
                       className="btn btn-sm btn-outline-secondary"
-                      onClick={() => history.push(`/editor/${article.slug}`)}
+                      onClick={() => navigate(`/editor/${article.slug}`)}
                     >
                       <i className="ion-edit"></i> Edit Article
                     </button>

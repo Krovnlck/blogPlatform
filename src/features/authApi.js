@@ -25,8 +25,19 @@ export const authApi = createApi({
         method: 'POST',
         body: { user: userData }
       })
+    }),
+    updateUser: builder.mutation({
+      query: (userData) => {
+        const token = localStorage.getItem('token');
+        return {
+          url: '/user',
+          method: 'PUT',
+          headers: { Authorization: `Token ${token}` },
+          body: userData
+        };
+      }
     })
   })
 });
 
-export const { useGetCurrentUserQuery, useRegisterUserMutation, useLoginUserMutation } = authApi; 
+export const { useGetCurrentUserQuery, useRegisterUserMutation, useLoginUserMutation, useUpdateUserMutation } = authApi; 

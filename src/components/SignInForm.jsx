@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./SignInForm.css";
 import { useLoginUserMutation } from "../features/authApi";
 
@@ -7,7 +7,7 @@ const SignInForm = ({ onLogin }) => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
   const [loginUser] = useLoginUserMutation();
 
   const handleChange = e => {
@@ -22,7 +22,7 @@ const SignInForm = ({ onLogin }) => {
       const { data } = await loginUser(form).unwrap();
       localStorage.setItem("token", data.user.token);
       if (onLogin) onLogin(data.user);
-      history.push("/");
+      navigate("/");
     } catch (err) {
       setError(err.data?.errors?.message || 'Failed to login');
     } finally {
@@ -47,12 +47,12 @@ const SignInForm = ({ onLogin }) => {
           {error && <div className="error-message">{error}</div>}
           <div className="signup-link">
             Don't have an account?{' '}
-            <span className="signin-link-text" onClick={() => history.push('/sign-up')}>
+            <span className="signin-link-text" onClick={() => navigate('/sign-up')}>
               Sign Up.
             </span>
           </div>
         </form>
-        <button className="go-main-btn" onClick={() => history.push("/")}>Перейти к статьям</button>
+        <button className="go-main-btn" onClick={() => navigate("/")}>Перейти к статьям</button>
       </div>
     </div>
   );

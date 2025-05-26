@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ReactMarkdown from 'react-markdown';
-import { likeArticle, unlikeArticle } from '../features/articlesApi';
+import { useFavoriteArticleMutation } from '../features/articlesApi';
 
 const API_URL = "https://blog-platform.kata.academy/api";
 
@@ -10,7 +10,8 @@ const ArticlePage = ({ user, isAuth }) => {
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const history = useHistory();
+  const navigate = useNavigate();
+  const [favoriteArticle] = useFavoriteArticleMutation();
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -40,7 +41,7 @@ const ArticlePage = ({ user, isAuth }) => {
         },
       });
       if (!res.ok) throw new Error("Ошибка удаления");
-      history.push("/");
+      navigate("/");
     } catch {
       alert("Ошибка удаления статьи");
     }
@@ -48,14 +49,10 @@ const ArticlePage = ({ user, isAuth }) => {
 
   const handleLike = async () => {
     if (!isAuth) return;
-    const token = localStorage.getItem('token');
     try {
-      if (article.favorited) {
-        const res = await unlikeArticle(slug, token);
-        setArticle(res.article);
-      } else {
-        const res = await likeArticle(slug, token);
-        setArticle(res.article);
+      if (!article.favorited) {
+        const result = await favoriteArticle(slug).unwrap();
+        setArticle(result.article);
       }
     } catch (e) {
       alert(e.message);
@@ -71,7 +68,7 @@ const ArticlePage = ({ user, isAuth }) => {
   return (
     <div className="article-list-wrapper">
       <div className="main-content">
-        <button className="page-btn" style={{ marginBottom: 20, width: 120 }} onClick={() => history.goBack()}>
+        <button className="page-btn" style={{ marginBottom: 20, width: 120 }} onClick={() => navigate(-1)}>
           ← Назад
         </button>
         <div className="article-card">
@@ -83,7 +80,7 @@ const ArticlePage = ({ user, isAuth }) => {
                   className="like-icon"
                   style={{ color: article.favorited ? '#ff4d4f' : '#888', cursor: isAuth ? 'pointer' : 'not-allowed' }}
                   onClick={handleLike}
-                  title={isAuth ? (article.favorited ? 'Убрать лайк' : 'Поставить лайк') : 'Войдите, чтобы лайкать'}
+                  title={isAuth ? (article.favorited ? 'Уже лайкнуто' : 'Поставить лайк') : 'Войдите, чтобы лайкать'}
                 >
                   {article.favorited ? '❤️' : '♡'}
                 </span>
@@ -109,7 +106,7 @@ const ArticlePage = ({ user, isAuth }) => {
           </div>
           {isAuthor && (
             <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
-              <button className="page-btn" style={{ background: '#fff', color: '#2196f3', border: '1px solid #2196f3' }} onClick={() => history.push(`/articles/${slug}/edit`)}>Edit</button>
+              <button className="page-btn" style={{ background: '#fff', color: '#2196f3', border: '1px solid #2196f3' }} onClick={() => navigate(`/articles/${slug}/edit`)}>Edit</button>
               <button className="page-btn" style={{ background: '#fff', color: '#ff4d4f', border: '1px solid #ff4d4f' }} onClick={handleDelete}>Delete</button>
             </div>
           )}

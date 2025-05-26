@@ -1,20 +1,20 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./Header.css";
 
 const Header = ({ isAuth, user, onLogout }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
     <header className="blog-header">
-      <span className="blog-title" onClick={() => history.push("/")}>Realworld Blog</span>
+      <span className="blog-title" onClick={() => navigate("/")}>Realworld Blog</span>
       <div className="auth-buttons">
         {isAuth ? (
           <>
-            <button className="create-article" onClick={() => history.push('/new-article')}>Create article</button>
+            <button className="create-article" onClick={() => navigate('/new-article')}>Create article</button>
             <span
               className="user-name clickable"
-              onClick={() => history.push("/profile")}
+              onClick={() => navigate("/profile")}
             >
               {user?.username}
             </span>
@@ -22,14 +22,14 @@ const Header = ({ isAuth, user, onLogout }) => {
               className="avatar clickable"
               src={user?.image || (user?.username ? `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}` : undefined)}
               alt="avatar"
-              onClick={() => history.push("/profile")}
+              onClick={() => navigate("/profile")}
             />
             <button className="logout-btn" onClick={onLogout}>Log Out</button>
           </>
         ) : (
           <>
-            <button className="sign-in" onClick={() => history.push("/sign-in")}>Sign In</button>
-            <button className="sign-up" onClick={() => history.push("/sign-up")}>Sign Up</button>
+            <button className="sign-in" onClick={() => navigate("/sign-in")}>Sign In</button>
+            <button className="sign-up" onClick={() => navigate("/sign-up")}>Sign Up</button>
           </>
         )}
       </div>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ArticleForm from "../components/ArticleForm";
 
 const API_URL = "https://blog-platform.kata.academy/api";
@@ -7,7 +7,7 @@ const API_URL = "https://blog-platform.kata.academy/api";
 const NewArticlePage = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleSubmit = async (data) => {
     setError(null);
@@ -35,7 +35,7 @@ const NewArticlePage = () => {
         setLoading(false);
         return;
       }
-      history.push(`/articles/${result.article.slug}`);
+      navigate(`/articles/${result.article.slug}`);
     } catch {
       setError("Ошибка сети");
     } finally {

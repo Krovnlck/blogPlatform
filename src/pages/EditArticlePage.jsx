@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ArticleForm from "../components/ArticleForm";
 
 const API_URL = "https://blog-platform.kata.academy/api";
@@ -9,7 +9,7 @@ const EditArticlePage = () => {
   const [initialValues, setInitialValues] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -59,7 +59,7 @@ const EditArticlePage = () => {
         setLoading(false);
         return;
       }
-      history.push(`/articles/${result.article.slug}`);
+      navigate(`/articles/${result.article.slug}`);
     } catch {
       setError("Ошибка сети");
     } finally {
