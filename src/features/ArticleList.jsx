@@ -13,6 +13,7 @@ const ArticleList = ({ isAuth }) => {
     [page]
   );
   const { data, isLoading, error } = useGetArticlesQuery(queryParams);
+  console.log("data", data, "error", error);
   const [favoriteArticle] = useFavoriteArticleMutation();
 
   const articles = data?.articles || [];
