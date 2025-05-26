@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import "../components/ArticleList.css";
 import { useGetArticlesQuery, useFavoriteArticleMutation } from "./articlesApi";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,11 @@ const PAGE_SIZE = 5;
 const ArticleList = ({ isAuth }) => {
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
-  const { data, isLoading, error } = useGetArticlesQuery({ limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
+  const queryParams = useMemo(
+    () => ({ limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }),
+    [page]
+  );
+  const { data, isLoading, error } = useGetArticlesQuery(queryParams);
   const [favoriteArticle] = useFavoriteArticleMutation();
 
   const articles = data?.articles || [];
