@@ -101,4 +101,15 @@
 .go-main-btn:hover {
   background: #2196f3;
   color: #fff;
+}
+
+.signin-link-text {
+  color: #1890ff;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+.signin-link-text:hover {
+  color: #1765ad;
+  text-decoration: underline;
 } 

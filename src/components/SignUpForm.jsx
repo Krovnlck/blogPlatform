@@ -36,41 +36,37 @@ const SignUpForm = ({ onRegister }) => {
 
   return (
     <div className="signup-bg">
-      <div className="signup-form-wrapper">
-        <form className="signup-form" onSubmit={handleSubmit}>
-          <h2 className="signup-title">Create new account</h2>
-          <label>
-            <span>Username</span>
-            <input name="username" type="text" placeholder="Username" value={form.username} onChange={handleChange} required />
-          </label>
-          <label>
-            <span>Email address</span>
-            <input name="email" type="email" placeholder="Email address" value={form.email} onChange={handleChange} required />
-          </label>
-          <label>
-            <span>Password</span>
-            <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required />
-          </label>
-          <label>
-            <span>Repeat Password</span>
-            <input name="repeat" type="password" placeholder="Password" value={form.repeat} onChange={handleChange} required />
-          </label>
-          <label className="checkbox-label">
-            <input type="checkbox" defaultChecked />
-            <span>
-              I agree to the processing of my personal information
-            </span>
-          </label>
-          <button className="create-btn" type="submit" disabled={loading}>{loading ? "Creating..." : "Create"}</button>
-          {error && <div className="error-message">{error}</div>}
-          <div className="signin-link">
-            Already have an account?{' '}
-            <span className="signin-link-text" onClick={() => navigate('/sign-in')}>
-              Sign In.
-            </span>
-          </div>
-        </form>
-      </div>
+      <form className="signup-form" onSubmit={handleSubmit}>
+        <h2 className="signup-title">Create new account</h2>
+        <label>
+          <span>Username</span>
+          <input className="signup-input" name="username" type="text" placeholder="Username" value={form.username} onChange={handleChange} required />
+        </label>
+        <label>
+          <span>Email address</span>
+          <input className="signup-input" name="email" type="email" placeholder="Email address" value={form.email} onChange={handleChange} required />
+        </label>
+        <label>
+          <span>Password</span>
+          <input className="signup-input" name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required />
+        </label>
+        <label>
+          <span>Repeat Password</span>
+          <input className="signup-input" name="repeat" type="password" placeholder="Repeat Password" value={form.repeat} onChange={handleChange} required />
+        </label>
+        <div className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '8px 0' }}>
+          <input type="checkbox" defaultChecked style={{ marginRight: 8 }} />
+          <span>I agree to the processing of my personal information</span>
+        </div>
+        <button className="signup-btn" type="submit" disabled={loading}>{loading ? "Creating..." : "Create"}</button>
+        {error && <div className="signup-error">{error}</div>}
+        <div className="signup-link">
+          Already have an account?{' '}
+          <span className="signup-link-text" onClick={() => navigate('/sign-in')}>
+            Sign In.
+          </span>
+        </div>
+      </form>
     </div>
   );
 };
