@@ -49,7 +49,7 @@ export const articlesApi = createApi({
         const token = localStorage.getItem('token');
         return {
           url: `/articles/${slug}/favorite`,
-          method: 'POST',
+    method: 'POST',
           headers: { Authorization: `Token ${token}` }
         };
       }

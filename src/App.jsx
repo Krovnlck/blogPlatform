@@ -49,13 +49,13 @@ function App() {
         <Route path="/sign-up" element={<SignUpForm onRegister={handleLogin} />} />
         <Route path="/new-article" element={
           <PrivateRoute isAuth={isAuth}>
-            <NewArticlePage user={user} />
-          </PrivateRoute>
+          <NewArticlePage user={user} />
+        </PrivateRoute>
         } />
         <Route path="/articles/:slug/edit" element={
           <PrivateRoute isAuth={isAuth}>
-            <EditArticlePage user={user} />
-          </PrivateRoute>
+          <EditArticlePage user={user} />
+        </PrivateRoute>
         } />
         <Route path="/articles/:slug" element={<ArticlePage user={user} isAuth={isAuth} />} />
         <Route path="/profile" element={<ProfilePage user={user} onUserUpdate={setUser} />} />

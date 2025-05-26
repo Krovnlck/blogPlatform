@@ -19,10 +19,14 @@ const SignInForm = ({ onLogin }) => {
     setError(null);
     setLoading(true);
     try {
-      const { data } = await loginUser(form).unwrap();
-      localStorage.setItem("token", data.user.token);
-      if (onLogin) onLogin(data.user);
-      navigate("/");
+      const result = await loginUser(form).unwrap();
+      if (result.user) {
+        localStorage.setItem("token", result.user.token);
+        if (onLogin) onLogin(result.user);
+        navigate("/");
+      } else {
+        setError('Failed to login');
+      }
     } catch (err) {
       setError(err.data?.errors?.message || 'Failed to login');
     } finally {
