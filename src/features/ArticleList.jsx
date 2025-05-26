@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "../components/ArticleList.css";
 import { useGetArticlesQuery, useFavoriteArticleMutation } from "./articlesApi";
 import { useNavigate } from "react-router-dom";
@@ -6,53 +6,28 @@ import { useNavigate } from "react-router-dom";
 const PAGE_SIZE = 5;
 
 const ArticleList = ({ isAuth }) => {
-  const [articles, setArticles] = useState([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { data, isLoading, error } = useGetArticlesQuery({ limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
+  const [favoriteArticle] = useFavoriteArticleMutation();
 
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    fetchArticles({ limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
-      .then(data => {
-        setArticles(data.articles);
-        setTotal(data.articlesCount);
-      })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, [page]);
-
+  const articles = data?.articles || [];
+  const total = data?.articlesCount || 0;
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const handleLike = async (slug, favorited) => {
-    if (!isAuth) return;
-    const token = localStorage.getItem("token");
+    if (!isAuth || favorited) return;
     try {
-      let updatedArticle;
-      if (favorited) {
-        const res = await unlikeArticle(slug, token);
-        updatedArticle = res.article;
-      } else {
-        const res = await likeArticle(slug, token);
-        updatedArticle = res.article;
-      }
-      setArticles(articles =>
-        articles.map(article =>
-          article.slug === slug ? updatedArticle : article
-        )
-      );
+      await favoriteArticle(slug).unwrap();
     } catch (e) {
-      setError(e.message);
+      // Можно добавить обработку ошибки
     }
   };
 
   return (
     <>
-      {loading && <div className="loading">Загрузка...</div>}
-      {error && <div className="error">{error}</div>}
+      {isLoading && <div className="loading">Загрузка...</div>}
+      {error && <div className="error">{error.message || "Ошибка загрузки"}</div>}
       <div className="articles">
         {articles.map((article) => (
           <div className="article-card" key={article.slug}>
@@ -73,7 +48,7 @@ const ArticleList = ({ isAuth }) => {
                     className="like-icon"
                     style={{ color: article.favorited ? '#ff4d4f' : '#888', cursor: isAuth ? 'pointer' : 'not-allowed' }}
                     onClick={() => handleLike(article.slug, article.favorited)}
-                    title={isAuth ? (article.favorited ? 'Убрать лайк' : 'Поставить лайк') : 'Войдите, чтобы лайкать'}
+                    title={isAuth ? (article.favorited ? 'Уже лайкнуто' : 'Поставить лайк') : 'Войдите, чтобы лайкать'}
                   >
                     {article.favorited ? '❤️' : '♡'}
                   </span>
