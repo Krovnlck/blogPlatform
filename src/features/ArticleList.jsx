@@ -45,7 +45,13 @@ const ArticleList = ({ isAuth }) => {
   };
 
   if (isLoading) {
-    return <div className="loading">Loading articles...</div>;
+    return (
+      <div className="article-list-wrapper">
+        <div className="main-content">
+          <div className="spinner"></div>
+        </div>
+      </div>
+    );
   }
 
   if (!articles.length) {
