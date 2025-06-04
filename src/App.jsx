@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { HashRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import SignInForm from './components/SignInForm';
 import SignUpForm from './components/SignUpForm';
 import ReactMarkdown from 'react-markdown';

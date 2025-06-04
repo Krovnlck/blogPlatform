@@ -7,6 +7,7 @@ const SignInForm = ({ onLogin }) => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [serverErrors, setServerErrors] = useState({});
   const navigate = useNavigate();
   const [loginUser] = useLoginUserMutation();
 
@@ -17,6 +18,7 @@ const SignInForm = ({ onLogin }) => {
   const handleSubmit = async e => {
     e.preventDefault();
     setError(null);
+    setServerErrors({});
     setLoading(true);
     try {
       const result = await loginUser(form).unwrap();
@@ -28,7 +30,11 @@ const SignInForm = ({ onLogin }) => {
         setError('Failed to login');
       }
     } catch (err) {
-      setError(err.data?.errors?.message || 'Failed to login');
+      if (err.data?.errors) {
+        setServerErrors(err.data.errors);
+      } else {
+        setError('Failed to login');
+      }
     } finally {
       setLoading(false);
     }
@@ -41,12 +47,14 @@ const SignInForm = ({ onLogin }) => {
           <h2 className="signin-title">Sign In</h2>
           <label>
             <span>Email address</span>
-            <input name="email" type="email" placeholder="Email address" value={form.email} onChange={handleChange} required />
+            <input name="email" type="email" placeholder="Email address" value={form.email} onChange={handleChange} required className={serverErrors.email ? 'error' : ''} />
           </label>
+          {serverErrors.email && <div className="error-message">{serverErrors.email.join(', ')}</div>}
           <label>
             <span>Password</span>
-            <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required />
+            <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required className={serverErrors.password ? 'error' : ''} />
           </label>
+          {serverErrors.password && <div className="error-message">{serverErrors.password.join(', ')}</div>}
           <button className="login-btn" type="submit" disabled={loading}>{loading ? "Logging in..." : "Login"}</button>
           {error && <div className="error-message">{error}</div>}
           <div className="signup-link">

@@ -43,9 +43,10 @@ const ArticleForm = ({ article, onArticleUpdate }) => {
       if (article) {
         result = await updateArticle({ slug: article.slug, ...articleData }).unwrap();
         if (onArticleUpdate) onArticleUpdate(result.article);
+        navigate(`/articles/${result.article.slug}`);
       } else {
         result = await createArticle(articleData).unwrap();
-        navigate(`/article/${result.article.slug}`);
+        navigate(`/articles/${result.article.slug}`);
       }
       reset();
       setTags([""]);

@@ -9,6 +9,7 @@ const SignUpForm = ({ onRegister }) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [registerUser] = useRegisterUserMutation();
+  const [serverErrors, setServerErrors] = useState({});
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,6 +18,7 @@ const SignUpForm = ({ onRegister }) => {
   const handleSubmit = async e => {
     e.preventDefault();
     setError(null);
+    setServerErrors({});
     if (form.password !== form.repeat) {
       setError("Passwords do not match");
       return;
@@ -40,11 +42,7 @@ const SignUpForm = ({ onRegister }) => {
         return;
       }
       if (err.data?.errors) {
-        setError(
-          Object.entries(err.data.errors)
-            .map(([field, msg]) => `${field}: ${msg}`)
-            .join(' ')
-        );
+        setServerErrors(err.data.errors);
       } else {
         setError('Failed to register');
       }
@@ -59,16 +57,19 @@ const SignUpForm = ({ onRegister }) => {
           <h2 className="signup-title">Create new account</h2>
           <label>
             <span>Username</span>
-          <input className="signup-input" name="username" type="text" placeholder="Username" value={form.username} onChange={handleChange} required />
+          <input className={`signup-input${serverErrors.username ? ' error' : ''}`} name="username" type="text" placeholder="Username" value={form.username} onChange={handleChange} required />
           </label>
+          {serverErrors.username && <div className="signup-error">{serverErrors.username.join(', ')}</div>}
           <label>
             <span>Email address</span>
-          <input className="signup-input" name="email" type="email" placeholder="Email address" value={form.email} onChange={handleChange} required />
+          <input className={`signup-input${serverErrors.email ? ' error' : ''}`} name="email" type="email" placeholder="Email address" value={form.email} onChange={handleChange} required />
           </label>
+          {serverErrors.email && <div className="signup-error">{serverErrors.email.join(', ')}</div>}
           <label>
             <span>Password</span>
-          <input className="signup-input" name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required />
+          <input className={`signup-input${serverErrors.password ? ' error' : ''}`} name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required />
           </label>
+          {serverErrors.password && <div className="signup-error">{serverErrors.password.join(', ')}</div>}
           <label>
             <span>Repeat Password</span>
           <input className="signup-input" name="repeat" type="password" placeholder="Repeat Password" value={form.repeat} onChange={handleChange} required />

@@ -70,7 +70,7 @@ const EditArticlePage = () => {
   if (loading || !initialValues) return <div>Загрузка...</div>;
   if (error) return <div style={{color: 'red'}}>{error}</div>;
 
-  return <ArticleForm initialValues={initialValues} onSubmit={handleSubmit} isEdit loading={loading} error={error} />;
+  return <ArticleForm article={initialValues} onSubmit={handleSubmit} isEdit loading={loading} error={error} />;
 };
 
 export default EditArticlePage; 

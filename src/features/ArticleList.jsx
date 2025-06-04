@@ -1,14 +1,15 @@
 import React, { useState, useMemo } from "react";
 import "../components/ArticleList.css";
 import { useGetArticlesQuery, useFavoriteArticleMutation, useUnfavoriteArticleMutation } from "./articlesApi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useSelector } from 'react-redux';
 
 const PAGE_SIZE = 5;
 
 const ArticleList = ({ isAuth }) => {
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
   const navigate = useNavigate();
   const queryParams = useMemo(
     () => ({ limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }),
@@ -39,6 +40,10 @@ const ArticleList = ({ isAuth }) => {
     }
   };
 
+  const handleSetPage = (p) => {
+    setSearchParams({ page: p });
+  };
+
   if (isLoading) {
     return <div className="loading">Loading articles...</div>;
   }
@@ -60,7 +65,7 @@ const ArticleList = ({ isAuth }) => {
                   className="article-title"
                   onClick={e => {
                     e.preventDefault();
-                    navigate(`/articles/${article.slug}`);
+                    navigate(`/articles/${article.slug}?page=${page}`);
                   }}
                 >
                   {article.title}
@@ -95,24 +100,34 @@ const ArticleList = ({ isAuth }) => {
         ))}
       </div>
       <footer className="pagination">
-        <button className="page-btn" disabled={page === 1} onClick={() => setPage(page - 1)}>{'<'}</button>
+        <button className="page-btn" disabled={page === 1} onClick={() => handleSetPage(page - 1)}>{'<'}</button>
+        {/* Первая страница */}
+        <button className={`page-btn${page === 1 ? ' active' : ''}`} onClick={() => handleSetPage(1)}>1</button>
+        {page > 4 && <span className="page-ellipsis">...</span>}
+        {/* Основные страницы */}
         {Array.from({ length: totalPages }, (_, i) => i + 1)
           .filter(p => {
-            if (totalPages <= 5) return true;
-            if (page <= 3) return p <= 5;
-            if (page >= totalPages - 2) return p > totalPages - 5;
-            return Math.abs(page - p) <= 2;
+            if (totalPages <= 5) return p !== 1 && p !== totalPages;
+            if (page <= 3) return p > 1 && p <= 5;
+            if (page >= totalPages - 2) return p < totalPages && p > totalPages - 5;
+            return Math.abs(page - p) <= 2 && p !== 1 && p !== totalPages;
           })
           .map(p => (
             <button
               className={`page-btn${page === p ? ' active' : ''}`}
               key={p}
-              onClick={() => setPage(p)}
+              onClick={() => handleSetPage(p)}
             >
               {p}
             </button>
           ))}
-        <button className="page-btn" disabled={page === totalPages} onClick={() => setPage(page + 1)}>{'>'}</button>
+        {/* Многоточие справа */}
+        {page < totalPages - 3 && <span className="page-ellipsis">...</span>}
+        {/* Последняя страница */}
+        {page < totalPages - 2 && totalPages > 1 && (
+          <button className={`page-btn${page === totalPages ? ' active' : ''}`} onClick={() => handleSetPage(totalPages)}>{totalPages}</button>
+        )}
+        <button className="page-btn" disabled={page === totalPages} onClick={() => handleSetPage(page + 1)}>{'>'}</button>
       </footer>
     </>
   );
