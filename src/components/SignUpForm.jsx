@@ -51,6 +51,12 @@ const SignUpForm = ({ onRegister }) => {
     }
   };
 
+  const renderError = (field) => {
+    const error = serverErrors[field];
+    if (!error) return null;
+    return <div className="signup-error">{Array.isArray(error) ? error.join(', ') : error}</div>;
+  };
+
   return (
     <div className="signup-bg">
         <form className="signup-form" onSubmit={handleSubmit}>
@@ -59,17 +65,17 @@ const SignUpForm = ({ onRegister }) => {
             <span>Username</span>
           <input className={`signup-input${serverErrors.username ? ' error' : ''}`} name="username" type="text" placeholder="Username" value={form.username} onChange={handleChange} required />
           </label>
-          {serverErrors.username && <div className="signup-error">{serverErrors.username.join(', ')}</div>}
+          {renderError('username')}
           <label>
             <span>Email address</span>
           <input className={`signup-input${serverErrors.email ? ' error' : ''}`} name="email" type="email" placeholder="Email address" value={form.email} onChange={handleChange} required />
           </label>
-          {serverErrors.email && <div className="signup-error">{serverErrors.email.join(', ')}</div>}
+          {renderError('email')}
           <label>
             <span>Password</span>
           <input className={`signup-input${serverErrors.password ? ' error' : ''}`} name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required />
           </label>
-          {serverErrors.password && <div className="signup-error">{serverErrors.password.join(', ')}</div>}
+          {renderError('password')}
           <label>
             <span>Repeat Password</span>
           <input className="signup-input" name="repeat" type="password" placeholder="Repeat Password" value={form.repeat} onChange={handleChange} required />

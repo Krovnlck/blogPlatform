@@ -31,13 +31,27 @@ const SignInForm = ({ onLogin }) => {
       }
     } catch (err) {
       if (err.data?.errors) {
-        setServerErrors(err.data.errors);
+        if (err.data.errors['email or password']) {
+          setError('Email or password is invalid');
+        } else {
+          setServerErrors(err.data.errors);
+        }
+      } else if (err.data?.message) {
+        setError(err.data.message);
+      } else if (err.error) {
+        setError(err.error);
       } else {
         setError('Failed to login');
       }
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderError = (field) => {
+    const error = serverErrors[field];
+    if (!error) return null;
+    return <div className="error-message">{Array.isArray(error) ? error.join(', ') : error}</div>;
   };
 
   return (
@@ -47,14 +61,30 @@ const SignInForm = ({ onLogin }) => {
           <h2 className="signin-title">Sign In</h2>
           <label>
             <span>Email address</span>
-            <input name="email" type="email" placeholder="Email address" value={form.email} onChange={handleChange} required className={serverErrors.email ? 'error' : ''} />
+            <input 
+              name="email" 
+              type="email" 
+              placeholder="Email address" 
+              value={form.email} 
+              onChange={handleChange} 
+              required 
+              className={serverErrors.email ? 'error' : ''} 
+            />
           </label>
-          {serverErrors.email && <div className="error-message">{serverErrors.email.join(', ')}</div>}
+          {renderError('email')}
           <label>
             <span>Password</span>
-            <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required className={serverErrors.password ? 'error' : ''} />
+            <input 
+              name="password" 
+              type="password" 
+              placeholder="Password" 
+              value={form.password} 
+              onChange={handleChange} 
+              required 
+              className={serverErrors.password ? 'error' : ''} 
+            />
           </label>
-          {serverErrors.password && <div className="error-message">{serverErrors.password.join(', ')}</div>}
+          {renderError('password')}
           <button className="login-btn" type="submit" disabled={loading}>{loading ? "Logging in..." : "Login"}</button>
           {error && <div className="error-message">{error}</div>}
           <div className="signup-link">

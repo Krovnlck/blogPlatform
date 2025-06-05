@@ -4,7 +4,7 @@ import ArticleForm from "../components/ArticleForm";
 
 const API_URL = "https://blog-platform.kata.academy/api";
 
-const EditArticlePage = () => {
+const EditArticlePage = ({ user }) => {
   const { slug } = useParams();
   const [initialValues, setInitialValues] = useState(null);
   const [error, setError] = useState(null);
@@ -18,6 +18,13 @@ const EditArticlePage = () => {
         const res = await fetch(`${API_URL}/articles/${slug}`);
         const result = await res.json();
         if (!res.ok) throw new Error("Ошибка загрузки статьи");
+        
+        // Проверяем, является ли текущий пользователь автором статьи
+        if (result.article.author.username !== user?.username) {
+          navigate("/");
+          return;
+        }
+
         setInitialValues({
           title: result.article.title,
           description: result.article.description,
@@ -31,7 +38,7 @@ const EditArticlePage = () => {
       }
     };
     fetchArticle();
-  }, [slug]);
+  }, [slug, user, navigate]);
 
   const handleSubmit = async (data) => {
     setError(null);
